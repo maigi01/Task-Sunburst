@@ -59,7 +59,39 @@ Benutzer: ein einzelner Nutzer mit **privatem Microsoft-Konto** (kein Geschäfts
 
 ## Aufgabentypen
 
-Aufgabentypen werden als **To-Do-Kategorien** am Task gepflegt (Feld `categories`), damit die Information mit dem Task mitwandert und auch in der To-Do-App sichtbar ist. Die genaue Liste der Typen und ihre Darstellung im Sunburst ist noch offen.
+Aufgabentypen werden als **To-Do-Kategorien** am Task gepflegt (Feld `categories`), damit die Information mit dem Task mitwandert und auch in der To-Do-App sichtbar ist.
+
+- Kategorien mit dem Präfix `Typ: ` gelten als Aufgabentyp, z.B. `Typ: Lernen`. So kollidieren sie nicht mit anderen Kategorien wie `delegiert` oder `Sunburst: aus`.
+- Bisher verwendete Typen (Ausgangsliste, erweiterbar): Projekt, Routine, Lernen, Lesen, Sammeln & Sortieren, Ordnung schaffen, Experimentieren, Zeit für mich.
+- Die App leitet die Typen aus den vorhandenen Kategorien ab; es gibt keine feste Liste im Code.
+- Task ohne Typ → Gruppe „Sonstige“. Task mit mehreren Typen → der erste zählt.
+- Die Typen werden im Tooltip angezeigt und sind die Grundlage der Typ-Ansicht (siehe „Ansichten“).
+
+## Ansichten
+
+Umschaltbar im Kopfbereich (wie in der früheren Offline-Version):
+
+1. **Bereichs-Ansicht** (Standard): drei Ringe Bereich → Aktivität → Aufgabe.
+2. **Typ-Ansicht**: zwei Ringe Aufgabentyp → Aufgabe. Es gelten dieselben Filter und dieselbe `maxTasks`-Auswahl wie in der Bereichs-Ansicht; die Typ-Ansicht gruppiert nur anders. Im Tooltip stehen zusätzlich Bereich und Aktivität.
+
+## Motivation
+
+Jede Ebene kann einen Motivationsspruch haben; er erscheint im **Tooltip** des Segments (abgesetzt, kursiv, mit 💡).
+
+- **Bereich** und **Aktivität (Liste):** in der Konfiguration (`motivation`), gepflegt in der Einstellungsansicht.
+- **Aufgabe:** Vorschlag – aus der Notiz des Tasks, und zwar die Zeile, die mit `Motivation:` beginnt. Der Rest der Notiz wird ignoriert. Fehlt die Zeile, wird keine Motivation angezeigt.
+
+## Darstellung
+
+Übernommen aus der früheren Offline-Version (eine einzelne HTML-Datei mit fest eingebetteten Daten):
+
+- Jede Aufgabe hat das Gewicht 1. Eine Aktivität ohne sichtbare Aufgaben wird als eigenes Segment mit Gewicht 1 gezeichnet, damit sie nicht verschwindet.
+- **Farben:** Jeder Bereich (bzw. Typ) bekommt eine Farbe aus der Palette des Themes. Die äusseren Ringe übernehmen sie und werden pro Ebene heller (`d3.color(...).brighter()`).
+- **Beschriftung** radial (vom Zentrum nach aussen), auf der linken Seite gedreht, damit sie lesbar bleibt. Zu lange Namen werden mit „…“ gekürzt; zu schmale Segmente bleiben unbeschriftet.
+- Schriftgrösse, Zeichenbreite und Mindest-Bogenlänge pro Ring sowie Diagrammgrösse, Zentrumsradius, Ringgrenzen und Abstand stehen als **zentrale Konstanten** im `render`-Modul (`LABEL_CONFIG`, `LAYOUT_CONFIG`), damit sie leicht anzupassen sind.
+- **Zentrum:** Anzahl der angezeigten Aufgaben.
+- **Seitenleiste:** Legende der Bereiche bzw. Typen.
+- **Hover:** Tooltip mit Name, Ebene, Typ und Motivation; andere Segmente werden abgedunkelt.
 
 ## Sortierung und maximale Anzahl
 
@@ -123,7 +155,7 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 
 - `version` für spätere Migrationen.
 - Einträge zu Listen, die in To Do nicht mehr existieren, werden in der Einstellungsansicht als verwaist angezeigt und können entfernt werden.
-- Wo genau der Motivationsspruch angezeigt wird (Bereich, Liste, Zentrum), ist noch offen.
+- Die Motivation der Listen steht im jeweiligen Eintrag unter `lists`; Aufgabentypen stehen nicht in der Konfiguration (siehe „Aufgabentypen“).
 
 ## Grafische Designs
 
@@ -132,6 +164,7 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Die Zeichenlogik verwendet ausschliesslich diese Variablen und die Palette; keine fest codierten Farben.
 - Auswahl über die Einstellungsansicht, gespeichert in der Konfiguration (`theme`).
 - In v1 umsetzen: **ein helles und ein dunkles Theme**.
+- Das **helle Theme** orientiert sich an der früheren Offline-Version: warmer Papierton als Hintergrund (`#f4f1eb`) mit leichter Rauschtextur, dunkle Tinte (`#1a1814`), roter Akzent (`#c0392b`), Schriften *Syne* (Überschriften) und *Syne Mono* (Text) über Google Fonts. Palette: `#c0392b #1a5e8a #2c7a4b #8e44ad #d35400 #16a085 #b7950b #717d7e`.
 
 ## Entwicklungsablauf
 
@@ -139,6 +172,7 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Nur funktionierende Stände in `main` übernehmen; `main` wird veröffentlicht.
 - Keine echten Aufgaben, Listennamen oder Konfigurationsdaten ins Repository committen (Repository kann öffentlich sein). Für Tests mit Beispieldaten arbeiten.
 - Ein Modus mit **Beispieldaten ohne Anmeldung** ist erwünscht, damit Darstellung und Themes ohne Microsoft-Konto entwickelt werden können.
+- Beispieldaten sind **frei erfunden** (z.B. Bereiche „Beruf“, „Haushalt“, „Freizeit“). Inhalte aus der früheren Offline-Version oder aus dem echten To Do werden nicht übernommen.
 
 ## Noch zu prüfen
 

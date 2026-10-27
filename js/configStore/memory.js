@@ -1,9 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
 //  CONFIG STORE: im Speicher  –  für den Beispieldaten-Modus
 //
-//  Gleiche Schnittstelle wie später der Store im To-Do-Konfigurations-Task:
-//    load()  → Konfiguration
-//    save(config)
+//  Gleiche Schnittstelle wie der Store im To-Do-Konfigurations-Task:
+//    load()          → Konfiguration
+//    update(change)  → change(aktuelle Konfiguration) speichern, Ergebnis zurück
 // ═══════════════════════════════════════════════════════════════
 
 export function createMemoryConfigStore(initial) {
@@ -13,8 +13,9 @@ export function createMemoryConfigStore(initial) {
     async load() {
       return structuredClone(current);
     },
-    async save(config) {
-      current = structuredClone(config);
+    async update(change) {
+      current = structuredClone(change(structuredClone(current)));
+      return structuredClone(current);
     },
   };
 }

@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="css/app.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.30.0/lib/msal-browser.min.js"></script>
 <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -15,20 +16,64 @@
   <h1>Aufgaben <span>·</span> Sunburst</h1>
   <div class="header-controls">
     <span id="source-badge" class="badge" hidden></span>
-    <div class="switcher" id="mode-switcher" role="group" aria-label="Ansicht">
-      <button type="button" data-mode="area" class="active">Bereiche</button>
-      <button type="button" data-mode="type">Typen</button>
+    <div id="view-controls" class="header-controls" hidden>
+      <div class="switcher" id="mode-switcher" role="group" aria-label="Ansicht">
+        <button type="button" data-mode="area" class="active">Bereiche</button>
+        <button type="button" data-mode="type">Typen</button>
+      </div>
+      <label class="theme-picker">
+        <span>Theme</span>
+        <select id="theme-select"></select>
+      </label>
     </div>
-    <label class="theme-picker">
-      <span>Theme</span>
-      <select id="theme-select"></select>
-    </label>
+    <div id="account" class="account" hidden>
+      <span id="account-name"></span>
+      <button type="button" id="logout-btn" class="btn ghost">Abmelden</button>
+    </div>
   </div>
 </header>
 
-<main>
+<!-- Anmeldung -->
+<section id="screen-welcome" class="screen" hidden>
+  <div class="screen-card">
+    <h2>Anmelden</h2>
+    <p>Die App liest deine Listen und Aufgaben direkt aus Microsoft To Do. Melde dich mit deinem privaten Microsoft-Konto an.</p>
+    <button type="button" id="login-btn" class="btn primary">Mit Microsoft anmelden</button>
+    <p class="small"><a href="?beispiel">Ohne Anmeldung mit Beispieldaten ansehen</a></p>
+  </div>
+</section>
+
+<!-- Laden -->
+<section id="screen-loading" class="screen" hidden>
+  <div class="screen-card">
+    <p id="loading-text">Lade Aufgaben aus To Do …</p>
+  </div>
+</section>
+
+<!-- Konfigurations-Task fehlt oder ist mehrfach vorhanden -->
+<section id="screen-setup" class="screen" hidden>
+  <div class="screen-card">
+    <h2 id="setup-title"></h2>
+    <p id="setup-text"></p>
+    <div id="setup-options" class="setup-options"></div>
+    <button type="button" id="setup-ok" class="btn primary"></button>
+  </div>
+</section>
+
+<!-- Fehler, der das Weitermachen verhindert -->
+<section id="screen-error" class="screen" hidden>
+  <div class="screen-card error-card">
+    <h2>Das hat nicht geklappt</h2>
+    <p id="error-text"></p>
+    <p class="small"><a href="./">Neu laden</a> · <a href="?beispiel">Beispieldaten ansehen</a></p>
+  </div>
+</section>
+
+<!-- Diagramm -->
+<main id="screen-chart" class="screen" hidden>
   <div id="chart-wrap">
     <svg id="sunburst" role="img" aria-label="Sunburst-Diagramm der Aufgaben"></svg>
+    <p id="chart-empty" hidden>Noch ist keine Liste einem Bereich zugeordnet. Das geht demnächst in den Einstellungen.</p>
     <div id="mode-label"></div>
   </div>
 
@@ -45,7 +90,7 @@
   </aside>
 </main>
 
-<div id="error" class="error" hidden></div>
+<div id="toast" class="toast" hidden></div>
 <div id="tooltip" role="tooltip"></div>
 
 </body>

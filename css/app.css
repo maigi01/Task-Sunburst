@@ -12,6 +12,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 body {
   background: var(--bg);
@@ -126,6 +127,18 @@ main {
   min-width: 280px;
 }
 #chart-wrap svg { display: block; width: 100%; height: auto; }
+
+#chart-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 2.5rem);
+  width: min(320px, 80%);
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
 
 #mode-label {
   margin-top: 0.4rem;
@@ -270,8 +283,81 @@ main {
   font-style: normal;
 }
 
-/* ── Fehler ─────────────────────────────────────────────────── */
-.error {
+/* ── Konto ──────────────────────────────────────────────────── */
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn {
+  padding: 0.55rem 1rem;
+  background: var(--ink);
+  color: var(--bg);
+  border: 1px solid var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--border); padding: 0.3rem 0.7rem; }
+
+/* ── Bildschirme ohne Diagramm ──────────────────────────────── */
+
+section.screen {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 1rem;
+}
+.screen-card {
+  width: min(520px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+.screen-card h2 {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+}
+.screen-card .btn { align-self: flex-start; }
+.screen-card .small { font-size: 0.68rem; color: var(--muted); }
+.screen-card a { color: var(--accent); }
+.error-card { border-left: 4px solid var(--accent); }
+
+.setup-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.setup-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.setup-option:hover { border-color: var(--border); }
+.setup-option input { accent-color: var(--accent); }
+
+/* ── Meldung ────────────────────────────────────────────────── */
+.toast {
   position: fixed;
   left: 50%;
   bottom: 1.5rem;

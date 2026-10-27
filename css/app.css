@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════════════
+   Basis-Styles. Alle Farben und Schriften kommen aus den
+   CSS-Variablen des aktiven Themes (themes/*.js).
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Fallback, bis das Theme geladen ist */
+  --bg: #f4f1eb;
+  --ink: #1a1814;
+  --font-head: sans-serif;
+  --font-body: monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity, 0);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Kopf ───────────────────────────────────────────────────── */
+header {
+  position: relative;
+  z-index: 1;
+  padding: 1.8rem 3rem 1.4rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--ink);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+header h1 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+header h1 span { color: var(--accent); }
+
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.switcher {
+  display: flex;
+  border: 2px solid var(--ink);
+  overflow: hidden;
+}
+.switcher button {
+  padding: 0.45rem 1.2rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: all 0.18s;
+}
+.switcher button:last-child { border-right: none; }
+.switcher button.active { background: var(--ink); color: var(--bg); }
+
+.theme-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.theme-picker select {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.badge {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+}
+
+/* ── Hauptbereich ───────────────────────────────────────────── */
+main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+#chart-wrap {
+  position: relative;
+  width: min(1000px, 100%, calc(100vh - 9rem));
+  min-width: 280px;
+}
+#chart-wrap svg { display: block; width: 100%; height: auto; }
+
+#mode-label {
+  margin-top: 0.4rem;
+  text-align: center;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Sunburst ───────────────────────────────────────────────── */
+.seg {
+  stroke: var(--bg);
+  stroke-width: 1.2;
+  transition: opacity 0.18s;
+}
+.seg.dimmed { opacity: 0.28; }
+.seg.clickable { cursor: pointer; }
+.seg-more { fill-opacity: 0.45; stroke-dasharray: 3 3; }
+
+.label { font-family: var(--font-body); }
+.label-1 { fill: var(--label-1); font-family: var(--font-head); }
+.label-2 { fill: var(--label-2); }
+.label-3 { fill: var(--label-3); }
+.label-more { font-style: italic; }
+
+.center-num {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 46px;
+  fill: var(--ink);
+}
+.center-label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: var(--muted);
+}
+
+/* ── Seitenleiste ───────────────────────────────────────────── */
+#side-panel {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.panel-block {
+  border: 1px solid var(--border);
+  padding: 1.2rem;
+  background: var(--surface);
+}
+.panel-block h3 {
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-text {
+  font-size: 0.68rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.hint {
+  border-color: var(--accent);
+  border-left-width: 4px;
+}
+.hint strong {
+  display: block;
+  color: var(--accent);
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+.hint ul {
+  list-style: none;
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.72rem;
+  margin: 0.45rem 0;
+}
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Tooltip ────────────────────────────────────────────────── */
+#tooltip {
+  position: fixed;
+  background: var(--tooltip-bg);
+  color: var(--tooltip-ink);
+  padding: 0.85rem 1.15rem;
+  font-size: 0.7rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  max-width: 260px;
+  z-index: 100;
+  line-height: 1.6;
+}
+#tooltip.visible { opacity: 1; }
+#tooltip .tt-name {
+  font-family: var(--font-head);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  word-break: break-word;
+}
+#tooltip .tt-kind {
+  color: var(--tooltip-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+#tooltip .tt-meta {
+  color: var(--tooltip-muted);
+  font-size: 0.65rem;
+}
+#tooltip .tt-motivation {
+  border-top: 1px solid var(--tooltip-rule);
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  font-style: italic;
+  line-height: 1.55;
+}
+#tooltip .tt-motivation::before {
+  content: '💡 ';
+  font-style: normal;
+}
+
+/* ── Fehler ─────────────────────────────────────────────────── */
+.error {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 0.8rem 1.2rem;
+  font-size: 0.75rem;
+  max-width: min(600px, calc(100% - 2rem));
+}
+
+/* ── Schmale Bildschirme ────────────────────────────────────── */
+@media (max-width: 640px) {
+  header { padding: 1.2rem 1rem 1rem; }
+  main { padding: 1rem 1rem 2rem; gap: 1.5rem; }
+  #chart-wrap { min-width: 0; }
+  #side-panel { width: 100%; }
+}

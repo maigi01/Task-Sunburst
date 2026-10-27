@@ -1,0 +1,10 @@
+{
+  "name": "task-sunburst",
+  "private": true,
+  "type": "module",
+  "description": "Statische Browser-App ohne Build-Schritt; package.json dient nur den Tests.",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node --test"
+  }
+}

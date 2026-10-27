@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aufgaben · Sunburst</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/app.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Aufgaben <span>·</span> Sunburst</h1>
+  <div class="header-controls">
+    <span id="source-badge" class="badge" hidden></span>
+    <div class="switcher" id="mode-switcher" role="group" aria-label="Ansicht">
+      <button type="button" data-mode="area" class="active">Bereiche</button>
+      <button type="button" data-mode="type">Typen</button>
+    </div>
+    <label class="theme-picker">
+      <span>Theme</span>
+      <select id="theme-select"></select>
+    </label>
+  </div>
+</header>
+
+<main>
+  <div id="chart-wrap">
+    <svg id="sunburst" role="img" aria-label="Sunburst-Diagramm der Aufgaben"></svg>
+    <div id="mode-label"></div>
+  </div>
+
+  <aside id="side-panel">
+    <div id="unassigned-hint" class="panel-block hint" hidden></div>
+    <div class="panel-block">
+      <h3 id="legend-title">Legende</h3>
+      <div id="legend"></div>
+    </div>
+    <div class="panel-block">
+      <h3>Daten</h3>
+      <p id="source-info" class="panel-text"></p>
+    </div>
+  </aside>
+</main>
+
+<div id="error" class="error" hidden></div>
+<div id="tooltip" role="tooltip"></div>
+
+</body>
+</html>

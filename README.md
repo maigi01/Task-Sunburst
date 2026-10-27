@@ -14,6 +14,7 @@ Dann <http://localhost:8000/> öffnen und mit dem Microsoft-Konto anmelden.
 - Der Port muss **8000** sein: Microsoft leitet nach der Anmeldung nur an Adressen zurück, die in der App-Registrierung eingetragen sind (`http://localhost:8000/`). Für eine andere Adresse (z.B. GitHub Pages) muss sie dort zusätzlich als SPA-Umleitungs-URI eingetragen werden.
 - <http://localhost:8000/?beispiel> zeigt frei erfundene Beispieldaten ohne Anmeldung.
 - Beim ersten Start legt die App den Task „⚙ Sunburst-Konfiguration“ an (in einer neuen Liste „Sunburst“ oder einer bestehenden).
+- <http://localhost:8000/pruefen.html> ist eine Prüfseite für offene Fragen zur Graph-API (Grösse der Notiz, ID beim Verschieben, Bearbeiten der Notiz in To Do). Sie arbeitet nur in eigenen Testlisten.
 
 ## Tests
 

@@ -69,27 +69,6 @@ function render() {
   $('chart-empty').hidden = tree.children.length > 0;
   $('legend-title').textContent = state.mode === 'area' ? 'Bereiche' : 'Aufgabentypen';
   $('mode-label').textContent = MODE_LABELS[state.mode];
-  renderUnassignedHint(view.unassignedLists);
-}
-
-function renderUnassignedHint(lists) {
-  const el = $('unassigned-hint');
-  el.hidden = lists.length === 0;
-  if (el.hidden) return;
-  const title = document.createElement('strong');
-  title.textContent = lists.length === 1 ? '1 Liste ohne Bereich' : `${lists.length} Listen ohne Bereich`;
-  const ul = document.createElement('ul');
-  for (const list of lists) {
-    const li = document.createElement('li');
-    li.textContent = list.name;
-    ul.appendChild(li);
-  }
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'btn';
-  button.textContent = 'Listen zuordnen';
-  button.onclick = () => openSettings('lists');
-  el.replaceChildren(title, ul, button);
 }
 
 function setupControls() {

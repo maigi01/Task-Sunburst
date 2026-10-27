@@ -150,6 +150,10 @@ export function createSettingsView(root, { themes, onSave, onClose }) {
     ];
     return [
       hint('Jede To-Do-Liste ist eine Aktivität im mittleren Ring. Listen ohne Bereich erscheinen nicht im Diagramm.'),
+      (() => {
+        const n = data.lists.filter(l => !draft.areas.some(a => a.id === draft.lists[l.id]?.area)).length;
+        return n ? h('p', { class: 'unassigned-count' }, `${plural(n, 'Liste', 'Listen')} ohne Bereich`) : null;
+      })(),
       h('label', { class: 'inline-field' },
         'Standard: höchstens ',
         h('input', { type: 'number', class: 'field num', min: 1, value: draft.defaultMaxTasks,
@@ -167,7 +171,7 @@ export function createSettingsView(root, { themes, onSave, onClose }) {
           h('span', {}, 'Liste'), h('span', {}, 'Bereich'), h('span', {}, 'Max.'), h('span', {}, 'Motivation')),
         data.lists.map(list => {
           const entry = draft.lists[list.id] ?? {};
-          const select = h('select', { class: 'field', onchange: e => { setListField(draft, list.id, 'area', e.target.value || undefined); changed(); } },
+          const select = h('select', { class: 'field', onchange: e => { setListField(draft, list.id, 'area', e.target.value || undefined); changed(true); } },
             areaOptions());
           select.value = entry.area && draft.areas.some(a => a.id === entry.area) ? entry.area : '';
           return h('div', { class: `row row-list${select.value ? '' : ' unassigned'}` },

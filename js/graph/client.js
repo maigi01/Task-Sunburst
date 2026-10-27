@@ -50,6 +50,7 @@ export function createGraphClient(getToken, fetchFn = (...args) => fetch(...args
     get:   path => request('GET', path),
     post:  (path, body) => request('POST', path, body),
     patch: (path, body) => request('PATCH', path, body),
+    delete: path => request('DELETE', path),
 
     // Alle Seiten einer Collection über @odata.nextLink lesen
     async getAll(path) {

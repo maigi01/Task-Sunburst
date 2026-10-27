@@ -51,7 +51,7 @@ Benutzer: ein einzelner Nutzer mit **privatem Microsoft-Konto** (kein Geschäfts
 
 ## Filterregeln
 
-- **Listen ohne Bereichszuordnung** erscheinen nicht im Sunburst. Die App zeigt aber einen gut sichtbaren Hinweis an (z.B. „3 Listen ohne Bereich“), damit neue Listen nicht unbemerkt verschwinden.
+- **Listen ohne Bereichszuordnung** erscheinen nicht im Sunburst. Der Hinweis darauf (z.B. „3 Listen ohne Bereich“) steht nicht in der Diagrammansicht, sondern in der Einstellungsansicht im Tab „Listen“; dort sind nicht zugeordnete Listen zusätzlich hervorgehoben.
 - **Erledigte Tasks** werden nicht angezeigt.
 - **Ausgeblendete Tasks:** Tasks mit der To-Do-Kategorie `Sunburst: aus` werden nicht angezeigt.
 - **Delegierte Tasks:** Die Graph-API liefert keine Zuweisung an Personen. Ersatz: Tasks mit der Kategorie `delegiert` werden nicht angezeigt.
@@ -89,7 +89,7 @@ Alle Motivationen stehen in der **Konfiguration** (`motivation`) und werden in d
 Übernommen aus der früheren Offline-Version (eine einzelne HTML-Datei mit fest eingebetteten Daten):
 
 - Jede Aufgabe hat das Gewicht 1. Eine Aktivität ohne sichtbare Aufgaben wird als eigenes Segment mit Gewicht 1 gezeichnet, damit sie nicht verschwindet.
-- **Farben:** Jeder Bereich (bzw. Typ) bekommt eine Farbe aus der Palette des Themes. Die äusseren Ringe übernehmen sie und werden pro Ebene heller (`d3.color(...).brighter()`).
+- **Farben:** Jeder Bereich (bzw. Typ) bekommt eine Farbe aus der Palette des Themes. Die äusseren Ringe übernehmen sie und werden pro Ebene abgestuft: im hellen Theme heller (`brighter()`), im dunklen Theme dunkler (`darker()`), festgelegt über `ringShade` im Theme. „Sonstige“ in der Typ-Ansicht bekommt die neutrale Farbe des Themes (`neutralColor`), damit es nicht mit einem echten Typ verwechselt wird.
 - **Beschriftung** radial (vom Zentrum nach aussen), auf der linken Seite gedreht, damit sie lesbar bleibt. Zu lange Namen werden mit „…“ gekürzt; zu schmale Segmente bleiben unbeschriftet.
 - Schriftgrösse, Zeichenbreite und Mindest-Bogenlänge pro Ring sowie Diagrammgrösse, Zentrumsradius, Ringgrenzen und Abstand stehen als **zentrale Konstanten** im `render`-Modul (`LABEL_CONFIG`, `LAYOUT_CONFIG`), damit sie leicht anzupassen sind.
 - **Zentrum:** Anzahl der angezeigten Aufgaben.
@@ -100,9 +100,11 @@ Alle Motivationen stehen in der **Konfiguration** (`motivation`) und werden in d
 
 Pro Liste werden höchstens `maxTasks` Tasks angezeigt (Wert pro Liste in der Konfiguration, sonst globaler Standardwert). Die Auswahl erfolgt als Kaskade:
 
-1. Fällig innerhalb der nächsten **7 Tage** (`dueDateTime`), aufsteigend nach Datum
+1. Fällig bis Ende des 7. Tages ab heute (`dueDateTime`), aufsteigend nach Datum. **Überfällige** Tasks gehören ebenfalls in diese Gruppe.
 2. Als **wichtig** markiert (`importance = high`)
-3. **Zufall** mit festem Startwert pro **Kalenderwoche** (ISO-Woche + Listen-ID als Seed), damit die Auswahl die ganze Woche stabil bleibt
+3. **Rest**
+
+Gruppe 2 und 3 werden jeweils mit festem Startwert pro **Kalenderwoche** (ISO-Woche + Listen-ID als Seed) gemischt, damit die Auswahl die ganze Woche stabil bleibt und bei vielen wichtigen Tasks nicht immer dieselben erscheinen. Vor dem Mischen wird nach `id` sortiert, damit das Ergebnis nicht von der Reihenfolge der API abhängt.
 
 Nicht verwendet:
 - „Mein Tag“ – über die Graph-API für To Do nicht verfügbar.
@@ -168,11 +170,13 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - `version` für spätere Migrationen.
 - Einträge zu Listen oder Tasks, die in To Do nicht mehr existieren oder erledigt sind, werden in der Einstellungsansicht als verwaist angezeigt und können gesammelt entfernt werden. Die App löscht sie nie selbständig.
 - Wird ein Typ gelöscht, der noch Tasks zugeordnet ist, fragt die App nach (Tasks auf „Sonstige“ setzen oder abbrechen).
+- Wird ein Bereich gelöscht, dem noch Listen zugeordnet sind, fragt die App ebenfalls nach; die Listen verlieren dann ihre Zuordnung.
+- **Aufräumen** (Tab in der Einstellungsansicht) erkennt: Einträge zu gelöschten Listen, zu erledigten oder gelöschten Tasks sowie Verweise auf nicht mehr vorhandene Bereiche oder Typen. Da nur offene Tasks geladen werden, gilt auch ein erledigter Task als verwaist; wird er später in To Do wieder geöffnet, sind Typ und Motivation nach dem Aufräumen weg.
 
 ## Grafische Designs
 
 - Jedes Design ist ein **Theme** in einer eigenen Datei unter `themes/`.
-- Ein Theme besteht aus CSS-Variablen (Hintergrund, Schrift, Linien, Tooltip usw.) und einer Farbpalette für die Bereiche.
+- Ein Theme besteht aus CSS-Variablen (Hintergrund, Schrift, Linien, Tooltip usw.), einer Farbpalette für die Bereiche, einer neutralen Farbe für „Sonstige“ (`neutralColor`) und der Abstufungsrichtung der äusseren Ringe (`ringShade`).
 - Die Zeichenlogik verwendet ausschliesslich diese Variablen und die Palette; keine fest codierten Farben.
 - Auswahl über die Einstellungsansicht, gespeichert in der Konfiguration (`theme`).
 - In v1 umsetzen: **ein helles und ein dunkles Theme**.
@@ -187,6 +191,8 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Beispieldaten sind **frei erfunden** (z.B. Bereiche „Beruf“, „Haushalt“, „Freizeit“). Inhalte aus der früheren Offline-Version oder aus dem echten To Do werden nicht übernommen.
 
 ## Noch zu prüfen
+
+Die Prüfseite `pruefen.html` (nach der Anmeldung in der App aufrufen) klärt diese Punkte in zwei eigenen Testlisten „Sunburst-Prüfung A/B“ und erzeugt ein Protokoll. Ergebnisse hier eintragen, sobald sie vorliegen.
 
 - Wie gross darf die Notiz eines To-Do-Tasks über die API werden? Test: ca. 20 000 Zeichen schreiben und wieder lesen. Falls zu knapp: Konfiguration auf mehrere Tasks verteilen. Wichtig, weil `tasks` mit jedem Typ und jeder Motivation wächst.
 - Behält ein Task seine `id`, wenn er in eine andere Liste verschoben wird? Sonst gehen Typ und Motivation beim Verschieben verloren (bzw. werden verwaist).

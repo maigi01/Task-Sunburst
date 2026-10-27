@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunburst · API-Prüfung</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="css/app.css">
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.30.0/lib/msal-browser.min.js"></script>
+<script type="module" src="js/pruefen.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Sunburst <span>·</span> API-Prüfung</h1>
+  <div class="header-controls">
+    <a class="btn ghost" href="./">Zurück zur App</a>
+  </div>
+</header>
+
+<section class="checks">
+  <div id="login-needed" class="screen-card" hidden>
+    <h2>Nicht angemeldet</h2>
+    <p>Melde dich zuerst <a href="./">in der App</a> an und öffne diese Seite danach wieder.</p>
+  </div>
+
+  <div id="checks" hidden>
+    <div class="screen-card">
+      <h2>Worum es geht</h2>
+      <p>Diese Seite klärt die offenen Fragen aus „Noch zu prüfen“. Sie arbeitet nur in zwei eigenen Testlisten
+        <strong>„Sunburst-Prüfung A“</strong> und <strong>„Sunburst-Prüfung B“</strong>, die sie selbst anlegt.
+        Deine anderen Listen und die Konfiguration werden nicht angefasst. Am Schluss kannst du die Testlisten löschen.</p>
+    </div>
+
+    <div class="screen-card">
+      <h2>1 · Wie gross darf die Notiz werden?</h2>
+      <p>Schreibt Konfigurationen wachsender Grösse (1 000 bis 200 000 Zeichen) in die Notiz eines Test-Tasks,
+        liest sie zurück und vergleicht. Dauert etwa eine Minute.</p>
+      <button type="button" class="btn primary" data-action="size">Test starten</button>
+    </div>
+
+    <div class="screen-card">
+      <h2>2 · Behält ein Task beim Verschieben seine ID?</h2>
+      <p>Die Graph-API kann Tasks nicht zwischen Listen verschieben, deshalb machst du das in der To-Do-App:</p>
+      <ol>
+        <li><button type="button" class="btn" data-action="move-prepare">Test-Task anlegen</button></li>
+        <li>In der To-Do-App den Task <strong>„Prüfung: Verschieben“</strong> von „Sunburst-Prüfung A“ nach „Sunburst-Prüfung B“ verschieben
+          (Rechtsklick bzw. lange drücken → „Aufgabe verschieben nach …“).</li>
+        <li><button type="button" class="btn" data-action="move-check">Prüfen</button></li>
+      </ol>
+    </div>
+
+    <div class="screen-card">
+      <h2>3 · Was macht To Do mit der Notiz beim Bearbeiten?</h2>
+      <ol>
+        <li><button type="button" class="btn" data-action="edit-prepare">Test-Task mit Konfiguration anlegen</button></li>
+        <li>In der To-Do-App den Task <strong>„Prüfung: Notiz bearbeiten“</strong> in „Sunburst-Prüfung A“ öffnen
+          und am Ende der Notiz eine neue Zeile <em>Hallo</em> anfügen. Sonst nichts ändern.</li>
+        <li><button type="button" class="btn" data-action="edit-check">Prüfen</button></li>
+      </ol>
+    </div>
+
+    <div class="screen-card">
+      <h2>Ergebnis</h2>
+      <p>Kopiere das Protokoll und schick es mir. Es enthält nur Daten aus den Testlisten.</p>
+      <pre id="log" class="log"></pre>
+      <div class="check-actions">
+        <button type="button" class="btn" data-action="copy">Protokoll kopieren</button>
+        <button type="button" class="btn ghost" data-action="cleanup">Testlisten löschen</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

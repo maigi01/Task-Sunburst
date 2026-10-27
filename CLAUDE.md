@@ -59,13 +59,13 @@ Benutzer: ein einzelner Nutzer mit **privatem Microsoft-Konto** (kein Geschäfts
 
 ## Aufgabentypen
 
-Aufgabentypen werden als **To-Do-Kategorien** am Task gepflegt (Feld `categories`), damit die Information mit dem Task mitwandert und auch in der To-Do-App sichtbar ist.
+Aufgabentypen und ihre Zuordnung zu Tasks stehen in der **Konfiguration**, nicht im Task selbst. Am Task in To Do wird dafür nichts gepflegt (keine Kategorien, keine Notiz).
 
-- Kategorien mit dem Präfix `Typ: ` gelten als Aufgabentyp, z.B. `Typ: Lernen`. So kollidieren sie nicht mit anderen Kategorien wie `delegiert` oder `Sunburst: aus`.
-- Bisher verwendete Typen (Ausgangsliste, erweiterbar): Projekt, Routine, Lernen, Lesen, Sammeln & Sortieren, Ordnung schaffen, Experimentieren, Zeit für mich.
-- Die App leitet die Typen aus den vorhandenen Kategorien ab; es gibt keine feste Liste im Code.
-- Task ohne Typ → Gruppe „Sonstige“. Task mit mehreren Typen → der erste zählt.
+- Die Liste der Typen steht in der Konfiguration (`taskTypes`), gepflegt in der Einstellungsansicht. Die Standardkonfiguration enthält als Ausgangsliste die bisher verwendeten Typen: Projekt, Routine, Lernen, Lesen, Sammeln & Sortieren, Ordnung schaffen, Experimentieren, Zeit für mich.
+- Die Zuordnung Task → Typ steht unter `tasks`, über die Graph-`id` des Tasks. Jeder Task hat höchstens einen Typ.
+- Task ohne Eintrag oder ohne Typ → Gruppe „Sonstige“.
 - Die Typen werden im Tooltip angezeigt und sind die Grundlage der Typ-Ansicht (siehe „Ansichten“).
+- Die Kategorien `delegiert` und `Sunburst: aus` (siehe „Filterregeln“) bleiben in To Do, weil sie direkt beim Erfassen gesetzt werden.
 
 ## Ansichten
 
@@ -78,8 +78,11 @@ Umschaltbar im Kopfbereich (wie in der früheren Offline-Version):
 
 Jede Ebene kann einen Motivationsspruch haben; er erscheint im **Tooltip** des Segments (abgesetzt, kursiv, mit 💡).
 
-- **Bereich** und **Aktivität (Liste):** in der Konfiguration (`motivation`), gepflegt in der Einstellungsansicht.
-- **Aufgabe:** Vorschlag – aus der Notiz des Tasks, und zwar die Zeile, die mit `Motivation:` beginnt. Der Rest der Notiz wird ignoriert. Fehlt die Zeile, wird keine Motivation angezeigt.
+Alle Motivationen stehen in der **Konfiguration** (`motivation`) und werden in der Einstellungsansicht gepflegt:
+
+- **Bereich:** unter `areas`
+- **Aktivität (Liste):** unter `lists`
+- **Aufgabe:** unter `tasks`, über die Graph-`id` des Tasks. Die Notiz des Tasks in To Do wird dafür nicht verwendet.
 
 ## Darstellung
 
@@ -131,7 +134,9 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Bereiche anlege, umbenenne, sortiere und löschen kann
 - jede Liste einem Bereich zuordne (oder keinem)
 - `maxTasks` pro Liste und den globalen Standardwert setze
-- Motivationssprüche erfasse
+- Aufgabentypen anlege, umbenenne, sortiere und lösche
+- jedem Task einen Typ und eine Motivation zuordne (Task-Auswahl gruppiert nach Bereich und Liste, inkl. der Tasks, die wegen `maxTasks` gerade nicht angezeigt werden)
+- Motivationssprüche für Bereiche und Listen erfasse
 - das Theme wähle
 
 Änderungen werden in die Notiz des Konfigurations-Tasks zurückgeschrieben. Vor dem Schreiben die aktuelle Version neu laden, um Konflikte zu vermeiden.
@@ -147,15 +152,22 @@ Die App hat eine **Einstellungsansicht**, in der ich:
     { "id": "beruf", "name": "Beruf", "motivation": "…" },
     { "id": "homelab", "name": "Homelab", "motivation": "…" }
   ],
+  "taskTypes": [
+    { "id": "projekt", "name": "Projekt" },
+    { "id": "lernen", "name": "Lernen" }
+  ],
   "lists": {
     "<todoTaskListId>": { "area": "homelab", "maxTasks": 3, "motivation": "…" }
+  },
+  "tasks": {
+    "<todoTaskId>": { "type": "lernen", "motivation": "…" }
   }
 }
 ```
 
 - `version` für spätere Migrationen.
-- Einträge zu Listen, die in To Do nicht mehr existieren, werden in der Einstellungsansicht als verwaist angezeigt und können entfernt werden.
-- Die Motivation der Listen steht im jeweiligen Eintrag unter `lists`; Aufgabentypen stehen nicht in der Konfiguration (siehe „Aufgabentypen“).
+- Einträge zu Listen oder Tasks, die in To Do nicht mehr existieren oder erledigt sind, werden in der Einstellungsansicht als verwaist angezeigt und können gesammelt entfernt werden. Die App löscht sie nie selbständig.
+- Wird ein Typ gelöscht, der noch Tasks zugeordnet ist, fragt die App nach (Tasks auf „Sonstige“ setzen oder abbrechen).
 
 ## Grafische Designs
 
@@ -176,8 +188,8 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 
 ## Noch zu prüfen
 
-- Wie gross darf die Notiz eines To-Do-Tasks über die API werden? Test: ca. 20 000 Zeichen schreiben und wieder lesen. Falls zu knapp: Konfiguration auf mehrere Tasks verteilen.
-- Behält ein Task seine `id`, wenn er in eine andere Liste verschoben wird?
+- Wie gross darf die Notiz eines To-Do-Tasks über die API werden? Test: ca. 20 000 Zeichen schreiben und wieder lesen. Falls zu knapp: Konfiguration auf mehrere Tasks verteilen. Wichtig, weil `tasks` mit jedem Typ und jeder Motivation wächst.
+- Behält ein Task seine `id`, wenn er in eine andere Liste verschoben wird? Sonst gehen Typ und Motivation beim Verschieben verloren (bzw. werden verwaist).
 - Wie verändert To Do HTML-Inhalt in der Notiz beim Bearbeiten in der App?
 
 ## Nicht in v1

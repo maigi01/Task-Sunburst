@@ -196,6 +196,7 @@ Die Prüfseite `pruefen.html` (nach der Anmeldung in der App aufrufen) arbeitet 
 
 - **Grösse der Notiz:** Bis ca. 203 000 Zeichen unverändert geschrieben und gelesen. Ein Task-Eintrag braucht ca. 60–120 Zeichen; die Konfiguration muss nicht auf mehrere Tasks verteilt werden.
 - **ID beim Verschieben:** Ein Task, der in To Do in eine andere Liste verschoben wird, bekommt eine **neue `id`**. Typ und Motivation gehen dabei verloren: Der Task erscheint unter „Sonstige“, der alte Eintrag wird verwaist.
+  **Entscheidung:** bewusst keine automatische Wiedererkennung (z.B. über den Titel). Nach dem Verschieben Typ und Motivation in den Einstellungen neu setzen und den alten Eintrag über „Aufräumen“ entfernen.
 - **Notiz in der To-Do-App bearbeiten:** Die Konfiguration bleibt lesbar, auch mit zusätzlichem Text danach. To Do ändert Zeilenenden zu `\r\n`, verkleinert Einrückungen und fasst **mehrere Leerzeichen zu einem** zusammen, auch innerhalb von Texten (z.B. Motivationen). Umlaute, typografische Anführungszeichen, `&`, `<>`, Apostrophe und Tabs bleiben erhalten.
 
 ## Nicht in v1

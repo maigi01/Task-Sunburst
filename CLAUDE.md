@@ -119,7 +119,7 @@ Sind mehr Tasks vorhanden als angezeigt, erscheint ein zusätzliches Segment **�
 Die Konfiguration liegt als **JSON in der Notiz eines speziellen To-Do-Tasks**:
 - Titel: `⚙ Sunburst-Konfiguration`
 - Der Task ist als **erledigt** markiert, damit er in der To-Do-App nicht stört.
-- Die Notiz (`body`) ist über die API **HTML**. Das JSON muss beim Schreiben sauber eingebettet (escaped) und beim Lesen robust extrahiert werden, auch wenn To Do Formatierung oder Zeilenumbrüche verändert.
+- Die App schreibt die Notiz (`body`) als **Text** (`contentType: text`) und bekommt sie so auch zurück (geprüft). Gelesen wird trotzdem robust: HTML wird bei Bedarf in Text umgewandelt, und das JSON wird zwischen erster `{` und letzter `}` herausgelöst, damit Text davor oder danach nicht stört.
 - Der Task-Titel ist auf ca. 255 Zeichen begrenzt; die Konfiguration gehört deshalb ausschliesslich in die Notiz.
 
 ### Ablauf beim Laden
@@ -190,13 +190,13 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Ein Modus mit **Beispieldaten ohne Anmeldung** ist erwünscht, damit Darstellung und Themes ohne Microsoft-Konto entwickelt werden können.
 - Beispieldaten sind **frei erfunden** (z.B. Bereiche „Beruf“, „Haushalt“, „Freizeit“). Inhalte aus der früheren Offline-Version oder aus dem echten To Do werden nicht übernommen.
 
-## Noch zu prüfen
+## Geprüft (27.10.2026, mit `pruefen.html`)
 
-Die Prüfseite `pruefen.html` (nach der Anmeldung in der App aufrufen) klärt diese Punkte in zwei eigenen Testlisten „Sunburst-Prüfung A/B“ und erzeugt ein Protokoll. Ergebnisse hier eintragen, sobald sie vorliegen.
+Die Prüfseite `pruefen.html` (nach der Anmeldung in der App aufrufen) arbeitet in zwei eigenen Testlisten „Sunburst-Prüfung A/B“ und erzeugt ein Protokoll. Sie kann bei Bedarf erneut verwendet werden.
 
-- Wie gross darf die Notiz eines To-Do-Tasks über die API werden? Test: ca. 20 000 Zeichen schreiben und wieder lesen. Falls zu knapp: Konfiguration auf mehrere Tasks verteilen. Wichtig, weil `tasks` mit jedem Typ und jeder Motivation wächst.
-- Behält ein Task seine `id`, wenn er in eine andere Liste verschoben wird? Sonst gehen Typ und Motivation beim Verschieben verloren (bzw. werden verwaist).
-- Wie verändert To Do HTML-Inhalt in der Notiz beim Bearbeiten in der App?
+- **Grösse der Notiz:** Bis ca. 203 000 Zeichen unverändert geschrieben und gelesen. Ein Task-Eintrag braucht ca. 60–120 Zeichen; die Konfiguration muss nicht auf mehrere Tasks verteilt werden.
+- **ID beim Verschieben:** Ein Task, der in To Do in eine andere Liste verschoben wird, bekommt eine **neue `id`**. Typ und Motivation gehen dabei verloren: Der Task erscheint unter „Sonstige“, der alte Eintrag wird verwaist.
+- **Notiz in der To-Do-App bearbeiten:** Die Konfiguration bleibt lesbar, auch mit zusätzlichem Text danach. To Do ändert Zeilenenden zu `\r\n`, verkleinert Einrückungen und fasst **mehrere Leerzeichen zu einem** zusammen, auch innerhalb von Texten (z.B. Motivationen). Umlaute, typografische Anführungszeichen, `&`, `<>`, Apostrophe und Tabs bleiben erhalten.
 
 ## Nicht in v1
 

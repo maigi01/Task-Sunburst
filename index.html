@@ -21,10 +21,7 @@
         <button type="button" data-mode="area" class="active">Bereiche</button>
         <button type="button" data-mode="type">Typen</button>
       </div>
-      <label class="theme-picker">
-        <span>Theme</span>
-        <select id="theme-select"></select>
-      </label>
+      <button type="button" id="settings-btn" class="btn ghost">⚙ Einstellungen</button>
     </div>
     <div id="account" class="account" hidden>
       <span id="account-name"></span>
@@ -69,11 +66,14 @@
   </div>
 </section>
 
+<!-- Einstellungen -->
+<section id="screen-settings" class="screen" hidden></section>
+
 <!-- Diagramm -->
 <main id="screen-chart" class="screen" hidden>
   <div id="chart-wrap">
     <svg id="sunburst" role="img" aria-label="Sunburst-Diagramm der Aufgaben"></svg>
-    <p id="chart-empty" hidden>Noch ist keine Liste einem Bereich zugeordnet. Das geht demnächst in den Einstellungen.</p>
+    <p id="chart-empty" hidden>Noch ist keine Liste mit offenen Aufgaben einem Bereich zugeordnet. Das geht unter <a href="#" data-open-settings="areas">⚙ Einstellungen</a>.</p>
     <div id="mode-label"></div>
   </div>
 

@@ -82,24 +82,6 @@ header h1 span { color: var(--accent); }
 .switcher button:last-child { border-right: none; }
 .switcher button.active { background: var(--ink); color: var(--bg); }
 
-.theme-picker {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.theme-picker select {
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  padding: 0.35rem 0.5rem;
-}
-
 .badge {
   font-size: 0.62rem;
   letter-spacing: 0.1em;
@@ -363,12 +345,183 @@ section.screen {
   bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 200;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--tooltip-bg);
+  color: var(--tooltip-ink);
+  border-left: 4px solid var(--accent);
   padding: 0.8rem 1.2rem;
   font-size: 0.75rem;
   max-width: min(600px, calc(100% - 2rem));
 }
+
+/* ── Einstellungen ──────────────────────────────────────────── */
+section#screen-settings {
+  display: block;
+  padding: 2rem 3rem 4rem;
+}
+.settings {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.settings-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.settings-toolbar h2 {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+}
+.settings-status {
+  font-size: 0.68rem;
+  color: var(--muted);
+  flex: 1;
+}
+.settings-status.dirty { color: var(--accent); }
+.settings-actions { display: flex; gap: 0.5rem; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 1.2rem 0 1.5rem;
+}
+.settings-tabs button {
+  padding: 0.45rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+.settings-tabs button.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.tab-count {
+  margin-left: 0.4rem;
+  padding: 0 0.35rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.6rem;
+}
+
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+.settings-body > .rows,
+.settings-body > .task-groups,
+.settings-body > .search { align-self: stretch; }
+.settings-hint {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  max-width: 60ch;
+}
+.empty { color: var(--muted); font-style: italic; }
+.meta { color: var(--muted); font-size: 0.66rem; white-space: nowrap; }
+
+.rows { display: flex; flex-direction: column; }
+.row {
+  display: grid;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.row-area { grid-template-columns: auto minmax(8rem, 1fr) minmax(10rem, 2fr) 5rem auto; }
+.row-type { grid-template-columns: auto minmax(8rem, 1fr) 6rem auto; }
+.row-list { grid-template-columns: minmax(8rem, 1.2fr) minmax(8rem, 1fr) 4.5rem minmax(10rem, 2fr); }
+.row-task { grid-template-columns: minmax(10rem, 1.5fr) minmax(8rem, 1fr) minmax(10rem, 2fr); }
+.row-head {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.row .name { word-break: break-word; }
+.row-list.unassigned .name { color: var(--muted); }
+
+.field {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.5rem;
+}
+.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.field.strong { font-family: var(--font-head); font-weight: 600; }
+.field.motivation { font-style: italic; }
+.field.num { width: 4.5rem; }
+.field.search { max-width: 24rem; }
+
+.inline-field { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+
+.move { display: inline-flex; gap: 0.15rem; }
+.icon-btn {
+  width: 1.7rem;
+  height: 1.7rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+.icon-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--ink); }
+.icon-btn:disabled { opacity: 0.3; cursor: default; }
+.icon-btn.danger:hover { color: var(--accent); border-color: var(--accent); }
+
+.task-groups { display: flex; flex-direction: column; gap: 1.2rem; }
+.task-area h3 {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.task-list {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  margin-bottom: 0.4rem;
+}
+.task-list summary {
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  font-weight: 600;
+}
+.task-list .row { padding: 0.45rem 0.8rem; }
+.task-list .row:last-child { border-bottom: none; }
+
+.theme-choices { display: flex; gap: 1rem; flex-wrap: wrap; }
+.theme-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+}
+.theme-choice input { accent-color: var(--accent); }
+.swatches { display: inline-flex; }
+.swatches span { width: 12px; height: 12px; }
+
+.orphans { list-style: none; line-height: 1.8; }
+
+.hint .btn { margin-top: 0.8rem; padding: 0.35rem 0.7rem; }
+#chart-empty a { color: var(--accent); }
 
 /* ── Schmale Bildschirme ────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -376,4 +529,9 @@ section.screen {
   main { padding: 1rem 1rem 2rem; gap: 1.5rem; }
   #chart-wrap { min-width: 0; }
   #side-panel { width: 100%; }
+  section#screen-settings { padding: 1rem 1rem 3rem; }
+  .row-area, .row-type, .row-list, .row-task { grid-template-columns: 1fr 1fr; }
+  .row-area .move, .row-type .move { grid-column: 1 / -1; }
+  .row-area .motivation, .row-list .motivation, .row-task .motivation, .row-list .name, .row-task .name { grid-column: 1 / -1; }
+  .row-head { display: none; }
 }

@@ -12,6 +12,7 @@ import { createTodoTaskConfigStore } from './configStore/todoTask.js';
 import { ConfigError } from './configStore/codec.js';
 import { buildView, buildAreaTree, buildTypeTree, CONFIG_TASK_TITLE } from './model/model.js';
 import { renderSunburst, renderLegend } from './render/sunburst.js';
+import { createSettingsView, stableStringify } from './settings/settingsView.js';
 import { THEMES, getTheme, applyTheme } from '../themes/index.js';
 
 const MODE_LABELS = {
@@ -26,6 +27,7 @@ const state = {
   data: null,
   config: null,
   configStore: null,
+  settings: null,
 };
 
 const $ = id => document.getElementById(id);
@@ -82,7 +84,12 @@ function renderUnassignedHint(lists) {
     li.textContent = list.name;
     ul.appendChild(li);
   }
-  el.replaceChildren(title, ul);
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'btn';
+  button.textContent = 'Listen zuordnen';
+  button.onclick = () => openSettings('lists');
+  el.replaceChildren(title, ul, button);
 }
 
 function setupControls() {
@@ -94,21 +101,53 @@ function setupControls() {
     });
   }
 
-  const select = $('theme-select');
-  select.replaceChildren(...THEMES.map(t => new Option(t.name, t.id)));
-  select.value = currentTheme().id;
-  select.addEventListener('change', async () => {
-    const theme = select.value;
-    state.config = { ...state.config, theme };
-    applyTheme(currentTheme());
-    render();
-    try {
-      state.config = await state.configStore.update(c => ({ ...c, theme }));
-    } catch (err) {
-      console.error(err);
-      showToast(`Theme konnte nicht gespeichert werden: ${err.message}`);
-    }
+  $('settings-btn').addEventListener('click', () => openSettings());
+  document.addEventListener('click', e => {
+    const link = e.target.closest('[data-open-settings]');
+    if (!link) return;
+    e.preventDefault();
+    openSettings(link.dataset.openSettings);
   });
+
+  state.settings = createSettingsView($('screen-settings'), {
+    themes: THEMES,
+    onSave: saveConfig,
+    onClose: () => {
+      showScreen('chart');
+      render();
+    },
+  });
+  window.addEventListener('beforeunload', e => {
+    if (state.settings.dirty && !$('screen-settings').hidden) e.preventDefault();
+  });
+}
+
+// ── Einstellungen ────────────────────────────────────────────
+function openSettings(tab) {
+  state.settings.open({ data: state.data, config: state.config, tab });
+  showScreen('settings');
+  window.scrollTo(0, 0);
+}
+
+// Schreibt den Entwurf nur, wenn die gespeicherte Konfiguration seit dem
+// Öffnen der Einstellungen unverändert ist (z.B. nicht in einem anderen Tab geändert).
+async function saveConfig(draft, base) {
+  try {
+    state.config = await state.configStore.update(current => {
+      if (stableStringify(current) !== stableStringify(base)) {
+        throw new Error('Die Konfiguration wurde inzwischen an anderer Stelle geändert. ' +
+          'Lade die Seite neu und mache die Änderungen nochmals.');
+      }
+      return draft;
+    });
+  } catch (err) {
+    console.error(err);
+    showToast(`Speichern fehlgeschlagen: ${err.message}`);
+    throw err;
+  }
+  applyTheme(currentTheme());
+  showToast('Gespeichert.');
+  return state.config;
 }
 
 function showChart(sourceInfo) {

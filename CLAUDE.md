@@ -122,7 +122,7 @@ Die Konfiguration liegt als **JSON in der Notiz eines speziellen To-Do-Tasks**:
 
 ### Ablauf beim Laden
 
-1. Alle Listen und Tasks laden (inkl. erledigter, um den Konfigurations-Task zu finden).
+1. Alle Listen und deren **offene** Tasks laden, dazu pro Liste gezielt den Konfigurations-Task über seinen Titel (auch wenn erledigt). Erledigte Tasks werden sonst nicht geladen, damit lange Historien das Laden nicht bremsen. Lehnt die API einen Filter ab, wird die Liste ungefiltert geladen und lokal gefiltert.
 2. Nach dem Konfigurations-Task suchen.
 3. **Gefunden:** JSON lesen, validieren, Sunburst aufbauen. Bei ungültigem JSON eine klare Fehlermeldung anzeigen und nichts überschreiben.
 4. **Nicht gefunden:** Dialog anzeigen – bestehende Liste wählen oder neue Liste „Sunburst“ anlegen. Dort den Task mit einer Standardkonfiguration erstellen.
@@ -139,7 +139,7 @@ Die App hat eine **Einstellungsansicht**, in der ich:
 - Motivationssprüche für Bereiche und Listen erfasse
 - das Theme wähle
 
-Änderungen werden in die Notiz des Konfigurations-Tasks zurückgeschrieben. Vor dem Schreiben die aktuelle Version neu laden, um Konflikte zu vermeiden.
+Änderungen werden in einem Entwurf gesammelt und erst mit „Speichern“ in die Notiz des Konfigurations-Tasks zurückgeschrieben. Vor dem Schreiben wird die aktuelle Version neu geladen; hat sie sich seit dem Öffnen der Einstellungen geändert (z.B. in einem anderen Tab), wird nicht geschrieben, sondern ein Hinweis angezeigt.
 
 ### Schema (Vorschlag)
 

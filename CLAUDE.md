@@ -92,7 +92,12 @@ Alle Motivationen stehen in der **Konfiguration** (`motivation`) und werden in d
 - **Farben:** Jeder Bereich (bzw. Typ) bekommt eine Farbe aus der Palette des Themes. Die äusseren Ringe übernehmen sie und werden pro Ebene abgestuft: im hellen Theme heller (`brighter()`), im dunklen Theme dunkler (`darker()`), festgelegt über `ringShade` im Theme. „Sonstige“ in der Typ-Ansicht bekommt die neutrale Farbe des Themes (`neutralColor`), damit es nicht mit einem echten Typ verwechselt wird.
 - **Beschriftung** radial (vom Zentrum nach aussen), auf der linken Seite gedreht, damit sie lesbar bleibt. Schrift aus der Theme-Variable `--font-label` (Syne), **fett** (600/700), weil das auch klein gut lesbar ist; die dünne Syne Mono ist für Beschriftungen ungeeignet. Zu lange Namen werden nach der **gemessenen Textbreite** mit „…“ gekürzt; zu schmale Segmente bleiben unbeschriftet. Nach dem Laden der Schrift wird neu gezeichnet, damit mit der echten Schrift gemessen wird.
 - Schriftgrösse, Schriftstärke, Mindest-Bogenlänge und Abstand pro Ring sowie Diagrammgrösse, Zentrumsradius, Ringgrenzen und Abstand stehen als **zentrale Konstanten** im `render`-Modul (`LABEL_CONFIG`, `LAYOUT_CONFIG`), damit sie leicht anzupassen sind. Der Aufgabenring ist bewusst der breiteste, weil dort die längsten Namen stehen.
-- **Grösse am Bildschirm:** Standard ist so gross, wie Platz ist (höchstens 1000 px), aber **nie kleiner als 700 px** – auf kleinen Bildschirmen wird stattdessen im Diagrammbereich gescrollt (nicht die ganze Seite). **Zoom** über − / 100 % / + im Kopfbereich (50–250 %); die Stufe wird pro Gerät im Browser gemerkt (`localStorage`).
+- **Grösse am Bildschirm – höchstens eine Scrollrichtung** (bei 100 % Zoom):
+  - Passt das Diagramm mit mindestens 700 px in Breite und Höhe: so gross wie Platz ist (höchstens 1000 px), kein Scrollen.
+  - Sonst **Hochformat:** die Höhe ausnutzen und nur **seitwärts** scrollen; die Seitenleiste steht dann rechts neben dem Diagramm im selben Scrollbereich.
+  - Sonst **Querformat:** höchstens so breit wie der Platz (Ziel 700 px) und nur **senkrecht** scrollen.
+  - Nie kleiner als 480 px. Auf schmalen oder niedrigen Bildschirmen ist die Kopfzeile kompakt, damit Höhe für das Diagramm bleibt.
+- **Zoom** über − / 100 % / + im Kopfbereich (50–250 %); die Stufe wird pro Gerät im Browser gemerkt (`localStorage`). Mit Zoom kann es zwei Scrollrichtungen geben.
 - **Zentrum:** Anzahl der angezeigten Aufgaben.
 - **Seitenleiste:** Legende der Bereiche bzw. Typen.
 - **Hover:** Tooltip mit Name, Ebene, Typ und Motivation; andere Segmente werden abgedunkelt.

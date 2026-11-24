@@ -22,10 +22,15 @@ const MODE_LABELS = {
 const NEW_LIST_NAME = 'Sunburst';
 
 // ── Grösse des Diagramms ──────────────────────────────────────
-//  Standardgrösse = so gross, wie Platz ist (höchstens CHART_MAX_FIT_PX),
-//  aber nie kleiner als CHART_MIN_PX – darunter wird die Schrift unleserlich,
-//  dann wird stattdessen gescrollt. Der Zoom multipliziert die Standardgrösse.
+//  Ziel: höchstens eine Scrollrichtung (bei 100 % Zoom).
+//  - Passt das Diagramm mit mindestens CHART_MIN_PX in Breite und Höhe:
+//    so gross wie Platz ist (höchstens CHART_MAX_FIT_PX), kein Scrollen.
+//  - Sonst Hochformat: Höhe ausnutzen, nur seitwärts scrollen; die
+//    Seitenleiste steht dann rechts neben dem Diagramm im selben Scrollbereich.
+//  - Sonst Querformat: höchstens so breit wie der Platz, nur senkrecht scrollen.
+//  Unter CHART_ABS_MIN_PX wird nie verkleinert. Der Zoom multipliziert die Grösse.
 const CHART_MIN_PX = 700;
+const CHART_ABS_MIN_PX = 480;
 const CHART_MAX_FIT_PX = 1000;
 const ZOOM_STEPS = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 2.5];
 const ZOOM_STORAGE_KEY = 'sunburst-zoom';
@@ -162,27 +167,45 @@ function showChart(sourceInfo) {
 }
 
 // ── Grösse und Zoom ──────────────────────────────────────────
-function baseChartSize() {
+function chartLayout() {
   const main = $('screen-chart');
   const style = getComputedStyle(main);
-  const innerWidth = main.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-  const besideSidePanel = innerWidth - $('side-panel').offsetWidth - (parseFloat(style.columnGap) || 0);
+  const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  const gap = parseFloat(style.columnGap) || 0;
+  const innerWidth = document.documentElement.clientWidth - padX;
+  const besideSidePanel = innerWidth - $('side-panel').offsetWidth - gap;
   const width = besideSidePanel >= CHART_MIN_PX ? besideSidePanel : innerWidth;
   const top = main.getBoundingClientRect().top + window.scrollY;
-  const height = window.innerHeight - top - parseFloat(style.paddingTop) - 40;   // 40 = Zeile darunter
-  return Math.max(CHART_MIN_PX, Math.min(width, height, CHART_MAX_FIT_PX));
+  const height = window.innerHeight - top - padY - $('mode-label').offsetHeight - 8;
+
+  const fit = Math.min(width, height, CHART_MAX_FIT_PX);
+  if (fit >= CHART_MIN_PX) return { size: fit, scrollX: false };
+  if (height > width) {
+    return { size: Math.max(CHART_ABS_MIN_PX, Math.min(height, CHART_MAX_FIT_PX)), scrollX: true };
+  }
+  return { size: Math.max(CHART_ABS_MIN_PX, Math.min(CHART_MIN_PX, width)), scrollX: false };
 }
 
 function sizeChart() {
-  if ($('screen-chart').hidden) return;
-  const scroll = $('chart-scroll');
+  const main = $('screen-chart');
+  if (main.hidden) return;
   const wrap = $('chart-wrap');
+  // Mitte des sichtbaren Ausschnitts beibehalten (Hochformat: main scrollt seitwärts,
+  // sonst #chart-scroll, falls gezoomt wurde)
+  const scrollerBefore = main.classList.contains('scroll-x') ? main : $('chart-scroll');
   const oldWidth = wrap.offsetWidth;
-  // Mitte des sichtbaren Ausschnitts beibehalten
-  const centerX = oldWidth ? (scroll.scrollLeft + scroll.clientWidth / 2) / oldWidth : 0.5;
-  const size = Math.round(baseChartSize() * state.zoom);
+  const centerX = oldWidth
+    ? (scrollerBefore.scrollLeft + scrollerBefore.clientWidth / 2 - (scrollerBefore === main ? wrap.offsetLeft : 0)) / oldWidth
+    : 0.5;
+
+  const { size: base, scrollX } = chartLayout();
+  main.classList.toggle('scroll-x', scrollX);
+  const size = Math.round(base * state.zoom);
   wrap.style.width = `${size}px`;
-  scroll.scrollLeft = centerX * size - scroll.clientWidth / 2;
+
+  const scroller = scrollX ? main : $('chart-scroll');
+  scroller.scrollLeft = centerX * size + (scroller === main ? wrap.offsetLeft : 0) - scroller.clientWidth / 2;
 
   const i = ZOOM_STEPS.indexOf(state.zoom);
   $('zoom-out').disabled = i <= 0;

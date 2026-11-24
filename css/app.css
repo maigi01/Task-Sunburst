@@ -139,6 +139,19 @@ main {
   position: relative;
   margin: 0 auto;
 }
+
+/* Hochformat mit wenig Platz: Diagramm und Seitenleiste nebeneinander,
+   nur seitwärts scrollen (gesetzt von main.js) */
+main.scroll-x {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+main.scroll-x #chart-scroll { flex: none; max-width: none; overflow: visible; }
+main.scroll-x #side-panel { flex: none; width: 230px; }
 #chart-wrap svg { display: block; width: 100%; height: auto; }
 
 #chart-empty {
@@ -539,10 +552,23 @@ section#screen-settings {
 #chart-empty a { color: var(--accent); }
 
 /* ── Schmale Bildschirme ────────────────────────────────────── */
+/* Kompakte Kopfzeile auf schmalen oder niedrigen Bildschirmen,
+   damit Höhe für das Diagramm bleibt */
+@media (max-width: 640px), (max-height: 500px) {
+  header { padding: 0.7rem 1rem; gap: 0.5rem; align-items: center; }
+  header h1 { font-size: 1.05rem; }
+  .header-controls { gap: 0.5rem; }
+  .switcher button { padding: 0.35rem 0.6rem; font-size: 0.62rem; }
+  .zoom button { min-width: 1.9rem; padding: 0.3rem 0.4rem; }
+  #zoom-reset { min-width: 3rem; }
+  .btn.ghost { padding: 0.3rem 0.55rem; }
+  .badge { font-size: 0.55rem; padding: 0.2rem 0.4rem; }
+  .btn-text, #account-name { display: none; }
+  main { padding: 0.8rem 1rem 1rem; gap: 1.5rem; }
+}
+
 @media (max-width: 640px) {
-  header { padding: 1.2rem 1rem 1rem; }
-  main { padding: 1rem 1rem 2rem; gap: 1.5rem; }
-  #side-panel { width: 100%; }
+  main:not(.scroll-x) #side-panel { width: 100%; }
   section#screen-settings { padding: 1rem 1rem 3rem; }
   .row-area, .row-type, .row-list, .row-task { grid-template-columns: 1fr 1fr; }
   .row-area .move, .row-type .move { grid-column: 1 / -1; }

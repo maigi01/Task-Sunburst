@@ -11,7 +11,7 @@ import { createMemoryConfigStore } from './configStore/memory.js';
 import { createTodoTaskConfigStore } from './configStore/todoTask.js';
 import { ConfigError } from './configStore/codec.js';
 import { buildView, buildAreaTree, buildTypeTree, CONFIG_TASK_TITLE } from './model/model.js';
-import { renderSunburst, renderLegend } from './render/sunburst.js';
+import { renderSunburst, renderLegend, labelFontReady } from './render/sunburst.js';
 import { createSettingsView, stableStringify } from './settings/settingsView.js';
 import { THEMES, getTheme, applyTheme } from '../themes/index.js';
 
@@ -21,6 +21,15 @@ const MODE_LABELS = {
 };
 const NEW_LIST_NAME = 'Sunburst';
 
+// ── Grösse des Diagramms ──────────────────────────────────────
+//  Standardgrösse = so gross, wie Platz ist (höchstens CHART_MAX_FIT_PX),
+//  aber nie kleiner als CHART_MIN_PX – darunter wird die Schrift unleserlich,
+//  dann wird stattdessen gescrollt. Der Zoom multipliziert die Standardgrösse.
+const CHART_MIN_PX = 700;
+const CHART_MAX_FIT_PX = 1000;
+const ZOOM_STEPS = [0.5, 0.67, 0.8, 1, 1.25, 1.5, 2, 2.5];
+const ZOOM_STORAGE_KEY = 'sunburst-zoom';
+
 const state = {
   mode: 'area',
   expanded: new Set(),
@@ -28,7 +37,17 @@ const state = {
   config: null,
   configStore: null,
   settings: null,
+  zoom: loadZoom(),
 };
+
+function loadZoom() {
+  try {
+    const z = Number(localStorage.getItem(ZOOM_STORAGE_KEY));
+    return ZOOM_STEPS.includes(z) ? z : 1;
+  } catch {
+    return 1;
+  }
+}
 
 const $ = id => document.getElementById(id);
 
@@ -94,6 +113,7 @@ function setupControls() {
     onClose: () => {
       showScreen('chart');
       render();
+      sizeChart();
     },
   });
   window.addEventListener('beforeunload', e => {
@@ -133,8 +153,62 @@ function showChart(sourceInfo) {
   $('source-info').textContent = sourceInfo;
   applyTheme(currentTheme());
   setupControls();
+  setupZoom();
   showScreen('chart');
   render();
+  sizeChart();
+  // Kürzung der Beschriftung mit der echten Schrift neu messen
+  labelFontReady().then(() => render());
+}
+
+// ── Grösse und Zoom ──────────────────────────────────────────
+function baseChartSize() {
+  const main = $('screen-chart');
+  const style = getComputedStyle(main);
+  const innerWidth = main.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  const besideSidePanel = innerWidth - $('side-panel').offsetWidth - (parseFloat(style.columnGap) || 0);
+  const width = besideSidePanel >= CHART_MIN_PX ? besideSidePanel : innerWidth;
+  const top = main.getBoundingClientRect().top + window.scrollY;
+  const height = window.innerHeight - top - parseFloat(style.paddingTop) - 40;   // 40 = Zeile darunter
+  return Math.max(CHART_MIN_PX, Math.min(width, height, CHART_MAX_FIT_PX));
+}
+
+function sizeChart() {
+  if ($('screen-chart').hidden) return;
+  const scroll = $('chart-scroll');
+  const wrap = $('chart-wrap');
+  const oldWidth = wrap.offsetWidth;
+  // Mitte des sichtbaren Ausschnitts beibehalten
+  const centerX = oldWidth ? (scroll.scrollLeft + scroll.clientWidth / 2) / oldWidth : 0.5;
+  const size = Math.round(baseChartSize() * state.zoom);
+  wrap.style.width = `${size}px`;
+  scroll.scrollLeft = centerX * size - scroll.clientWidth / 2;
+
+  const i = ZOOM_STEPS.indexOf(state.zoom);
+  $('zoom-out').disabled = i <= 0;
+  $('zoom-in').disabled = i >= ZOOM_STEPS.length - 1;
+  $('zoom-reset').textContent = `${Math.round(state.zoom * 100)} %`;
+}
+
+function setZoom(zoom) {
+  state.zoom = zoom;
+  try { localStorage.setItem(ZOOM_STORAGE_KEY, String(zoom)); } catch { /* nur Komfort */ }
+  sizeChart();
+}
+
+function setupZoom() {
+  const step = delta => {
+    const i = ZOOM_STEPS.indexOf(state.zoom) + delta;
+    if (i >= 0 && i < ZOOM_STEPS.length) setZoom(ZOOM_STEPS[i]);
+  };
+  $('zoom-in').addEventListener('click', () => step(1));
+  $('zoom-out').addEventListener('click', () => step(-1));
+  $('zoom-reset').addEventListener('click', () => setZoom(1));
+  let timer;
+  window.addEventListener('resize', () => {
+    clearTimeout(timer);
+    timer = setTimeout(sizeChart, 150);
+  });
 }
 
 // ── Einrichtung des Konfigurations-Tasks ─────────────────────

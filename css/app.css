@@ -21,6 +21,7 @@ body {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(0, 1fr);   /* breite Inhalte scrollen in sich, nicht die Seite */
 }
 
 body::before {
@@ -59,6 +60,8 @@ header h1 span { color: var(--accent); }
   gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .switcher {
@@ -82,6 +85,26 @@ header h1 span { color: var(--accent); }
 .switcher button:last-child { border-right: none; }
 .switcher button.active { background: var(--ink); color: var(--bg); }
 
+.zoom {
+  display: flex;
+  border: 1px solid var(--border);
+}
+.zoom button {
+  min-width: 2.2rem;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+.zoom button:last-child { border-right: none; }
+.zoom button:hover:not(:disabled) { background: var(--surface); }
+.zoom button:disabled { opacity: 0.35; cursor: default; }
+#zoom-reset { font-size: 0.65rem; min-width: 3.6rem; color: var(--muted); }
+
 .badge {
   font-size: 0.62rem;
   letter-spacing: 0.1em;
@@ -103,10 +126,18 @@ main {
   flex-wrap: wrap;
 }
 
+/* Breite von #chart-wrap setzt main.js (Mindestgrösse und Zoom);
+   ist sie grösser als der Platz, wird in #chart-scroll gescrollt. */
+#chart-scroll {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior-x: contain;
+}
 #chart-wrap {
   position: relative;
-  width: min(1000px, 100%, calc(100vh - 9rem));
-  min-width: 280px;
+  margin: 0 auto;
 }
 #chart-wrap svg { display: block; width: 100%; height: auto; }
 
@@ -141,8 +172,8 @@ main {
 .seg.clickable { cursor: pointer; }
 .seg-more { fill-opacity: 0.45; stroke-dasharray: 3 3; }
 
-.label { font-family: var(--font-body); }
-.label-1 { fill: var(--label-1); font-family: var(--font-head); }
+.label { font-family: var(--font-label, var(--font-head)); }
+.label-1 { fill: var(--label-1); }
 .label-2 { fill: var(--label-2); }
 .label-3 { fill: var(--label-3); }
 .label-more { font-style: italic; }
@@ -511,7 +542,6 @@ section#screen-settings {
 @media (max-width: 640px) {
   header { padding: 1.2rem 1rem 1rem; }
   main { padding: 1rem 1rem 2rem; gap: 1.5rem; }
-  #chart-wrap { min-width: 0; }
   #side-panel { width: 100%; }
   section#screen-settings { padding: 1rem 1rem 3rem; }
   .row-area, .row-type, .row-list, .row-task { grid-template-columns: 1fr 1fr; }

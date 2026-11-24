@@ -21,6 +21,11 @@
         <button type="button" data-mode="area" class="active">Bereiche</button>
         <button type="button" data-mode="type">Typen</button>
       </div>
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button type="button" id="zoom-out" title="Verkleinern" aria-label="Verkleinern">−</button>
+        <button type="button" id="zoom-reset" title="Standardgrösse">100 %</button>
+        <button type="button" id="zoom-in" title="Vergrössern" aria-label="Vergrössern">+</button>
+      </div>
       <button type="button" id="settings-btn" class="btn ghost">⚙ Einstellungen</button>
     </div>
     <div id="account" class="account" hidden>
@@ -71,10 +76,12 @@
 
 <!-- Diagramm -->
 <main id="screen-chart" class="screen" hidden>
-  <div id="chart-wrap">
-    <svg id="sunburst" role="img" aria-label="Sunburst-Diagramm der Aufgaben"></svg>
-    <p id="chart-empty" hidden>Noch ist keine Liste mit offenen Aufgaben einem Bereich zugeordnet. Das geht unter <a href="#" data-open-settings="areas">⚙ Einstellungen</a>.</p>
-    <div id="mode-label"></div>
+  <div id="chart-scroll">
+    <div id="chart-wrap">
+      <svg id="sunburst" role="img" aria-label="Sunburst-Diagramm der Aufgaben"></svg>
+      <p id="chart-empty" hidden>Noch ist keine Liste mit offenen Aufgaben einem Bereich zugeordnet. Das geht unter <a href="#" data-open-settings="areas">⚙ Einstellungen</a>.</p>
+      <div id="mode-label"></div>
+    </div>
   </div>
 
   <aside id="side-panel">

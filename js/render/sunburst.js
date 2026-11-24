@@ -10,17 +10,20 @@ const d3 = window.d3;
 // ═══════════════════════════════════════════════════════════════
 //  BESCHRIFTUNG  –  Label-Parameter pro Ring-Tiefe (1 = innen)
 //
-//  fontSize:  Schriftgrösse in px
-//  bold:      true = fett
-//  charWidth: geschätzte Zeichenbreite relativ zu fontSize
-//             → kleiner = mehr Zeichen erlaubt (bei Überlappung erhöhen)
-//             Richtwert: 0.50 (schmal) bis 0.65 (breit/fett)
+//  fontSize:  Schriftgrösse in px (im viewBox, siehe LAYOUT_CONFIG.diagramSize)
+//  weight:    Schriftstärke (600 = halbfett, 700 = fett); fett bleibt auch
+//             klein gut lesbar
 //  minArcPx:  minimale Bogenlänge in px, damit ein Label gezeichnet wird
+//             → sollte mindestens fontSize sein, sonst berühren sich Labels
+//  padding:   Abstand des Textes zu den Ringkanten (radial), in px
+//
+//  Die Schrift kommt aus der CSS-Variable --font-label des Themes. Gekürzt
+//  wird nach der gemessenen Textbreite, nicht nach Zeichenzahl.
 // ═══════════════════════════════════════════════════════════════
 export const LABEL_CONFIG = {
-  1: { fontSize: 15, bold: true,  charWidth: 0.55, minArcPx: 20 },
-  2: { fontSize: 13, bold: false, charWidth: 0.53, minArcPx: 16 },
-  3: { fontSize: 11, bold: false, charWidth: 0.52, minArcPx: 14 },
+  1: { fontSize: 16, weight: 700, minArcPx: 20, padding: 8 },
+  2: { fontSize: 15, weight: 600, minArcPx: 17, padding: 8 },
+  3: { fontSize: 14, weight: 600, minArcPx: 15, padding: 8 },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -35,10 +38,10 @@ export const LABEL_CONFIG = {
 // ═══════════════════════════════════════════════════════════════
 export const LAYOUT_CONFIG = {
   diagramSize:  1000,
-  centerRadius: 90,
+  centerRadius: 75,
   gap:          6,
-  area: { ring1end: 230, ring2end: 380 },
-  type: { ring1end: 270 },
+  area: { ring1end: 195, ring2end: 330 },
+  type: { ring1end: 230 },
 };
 
 const RADIUS = LAYOUT_CONFIG.diagramSize / 2;
@@ -84,20 +87,46 @@ function nodeColor(d, theme) {
 }
 
 // ── Beschriftung ─────────────────────────────────────────────
+const labelCfg = depth => LABEL_CONFIG[depth] ?? LABEL_CONFIG[3];
+const measureCtx = document.createElement('canvas').getContext('2d');
+
+function labelFontFamily() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--font-label').trim() || 'sans-serif';
+}
+
+// Längster Anfang von `text` (mit „…“), der in maxPx passt
+function fitText(text, maxPx, font) {
+  measureCtx.font = font;
+  if (measureCtx.measureText(text).width <= maxPx) return text;
+  let lo = 0;
+  let hi = text.length - 1;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (measureCtx.measureText(text.slice(0, mid).trimEnd() + '…').width <= maxPx) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo >= 2 ? text.slice(0, lo).trimEnd() + '…' : '';
+}
+
 // Text läuft radial (vom Zentrum nach aussen) — die verfügbare Textlänge ist
 // daher die Ringbreite. Die Bogenlänge entscheidet nur, ob das Segment breit
 // genug für ein Label ist.
-function fitLabel(d, mode) {
+function fitLabel(d, mode, family) {
   const ring = getRings(mode, d.depth);
-  const cfg = LABEL_CONFIG[d.depth] ?? LABEL_CONFIG[3];
+  const cfg = labelCfg(d.depth);
   const arcPx = (d.x1 - d.x0) * (ring.inner + ring.outer) / 2;
   if (arcPx < cfg.minArcPx) return '';
+  const radialPx = (ring.outer - ring.inner) - 2 * cfg.padding;
+  return fitText(d.data.name, radialPx, `${cfg.weight} ${cfg.fontSize}px ${family}`);
+}
 
-  const radialPx = (ring.outer - ring.inner) - 8;
-  const chars = Math.floor(radialPx / (cfg.fontSize * cfg.charWidth));
-  if (chars < 2) return '';
-  const name = d.data.name;
-  return name.length > chars ? name.slice(0, chars - 1) + '…' : name;
+// Löst auf, sobald die Label-Schrift geladen ist (danach neu zeichnen,
+// damit die Kürzung mit der echten Schrift gemessen wird)
+export function labelFontReady() {
+  if (!document.fonts?.load) return Promise.resolve();
+  const family = labelFontFamily();
+  const weights = [...new Set(Object.values(LABEL_CONFIG).map(c => c.weight))];
+  return Promise.all(weights.map(w => document.fonts.load(`${w} 16px ${family}`))).catch(() => {});
 }
 
 function labelRotation(d) {
@@ -195,6 +224,7 @@ export function renderSunburst(svgEl, tree, { mode, theme, tooltipEl, onToggleLi
       if (isToggleable(d)) onToggleList?.(d.data.listId);
     });
 
+  const family = labelFontFamily();
   g.append('g').attr('pointer-events', 'none').selectAll('g')
     .data(nodes.filter(d => (d.x1 - d.x0) * getRings(mode, d.depth).inner >= 10))
     .join('g')
@@ -206,9 +236,9 @@ export function renderSunburst(svgEl, tree, { mode, theme, tooltipEl, onToggleLi
     .attr('class', d => `label label-${d.depth} label-${d.data.kind}`)
     .attr('text-anchor', 'middle')
     .attr('dominant-baseline', 'middle')
-    .attr('font-weight', d => (LABEL_CONFIG[d.depth] ?? LABEL_CONFIG[3]).bold ? 600 : 400)
-    .attr('font-size', d => (LABEL_CONFIG[d.depth] ?? LABEL_CONFIG[3]).fontSize)
-    .text(d => fitLabel(d, mode));
+    .attr('font-weight', d => labelCfg(d.depth).weight)
+    .attr('font-size', d => labelCfg(d.depth).fontSize)
+    .text(d => fitLabel(d, mode, family));
 
   // Zentrum: Anzahl der angezeigten Aufgaben (im SVG, damit es mitskaliert)
   const total = nodes.filter(d => d.data.kind === 'task').length;

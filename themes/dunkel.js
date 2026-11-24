@@ -21,6 +21,7 @@ export default {
     '--noise-opacity': '0.04',
     '--font-head':     "'Syne', sans-serif",
     '--font-body':     "'Syne Mono', monospace",
+    '--font-label':    "'Syne', sans-serif",
   },
   palette: ['#e0604f', '#4a9fd4', '#4fae74', '#b072cf', '#ec8a3c', '#3cbfa3', '#d4b43a', '#9aa5a6'],
   // Für „Sonstige“ in der Typ-Ansicht
